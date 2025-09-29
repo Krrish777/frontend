@@ -1,0 +1,39 @@
+{
+  "name": "samudra-i-frontend",
+  "version": "1.0.0",
+  "description": "Samudra-I: Advanced Ocean Data Analysis Platform - Frontend Application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "echo 'No build process needed for static files'",
+    "test": "echo 'Error: no test specified' && exit 1"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "ocean-data",
+    "argo",
+    "oceanography",
+    "data-analysis",
+    "marine-science",
+    "frontend",
+    "web-app"
+  ],
+  "author": "Samudra-I Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Krrish777/frontend.git"
+  },
+  "homepage": "https://frontend-production-ab4d.up.railway.app",
+  "bugs": {
+    "url": "https://github.com/Krrish777/frontend/issues"
+  }
+}
