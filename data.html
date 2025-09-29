@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Sources | Samudra-I</title>
+    <meta name="description" content="Comprehensive oceanographic data sources including ARGO floats, satellite measurements, and research vessel data with quality control and validation.">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'deep-charcoal': '#2A2A2A',
+                        'warm-stone': '#8B7D6B',
+                        'copper-orange': '#B87333',
+                        'soft-cream': '#F8F6F3'
+                    },
+                    fontFamily: {
+                        'display': ['Inter', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #F8F6F3 0%, #F5F3F0 100%);
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #B87333;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .data-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .data-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(42, 42, 42, 0.15);
+        }
+        
+        .quality-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        
+        .quality-excellent { background-color: #10B981; }
+        .quality-good { background-color: #F59E0B; }
+        .quality-fair { background-color: #EF4444; }
+        
+        .reveal.stagger-delay-1.active { transition-delay: 0.1s; }
+        .reveal.stagger-delay-2.active { transition-delay: 0.2s; }
+        .reveal.stagger-delay-3.active { transition-delay: 0.3s; }
+        .reveal.stagger-delay-4.active { transition-delay: 0.4s; }
+    </style>
+</head>
+<body class="text-deep-charcoal">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-soft-cream/90 backdrop-blur-md border-b border-warm-stone/20">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-gradient-to-br from-copper-orange to-warm-stone rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">S</span>
+                    </div>
+                    <span class="font-display font-bold text-xl">Samudra-I</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="nav-link text-sm font-medium hover:text-copper-orange">Home</a>
+                    <a href="research.html" class="nav-link text-sm font-medium hover:text-copper-orange">Research</a>
+                    <a href="data.html" class="nav-link text-sm font-medium text-copper-orange">Data</a>
+                    <a href="about.html" class="nav-link text-sm font-medium hover:text-copper-orange">About</a>
+                    <a href="auth.html" class="bg-copper-orange text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-copper-orange/90 transition-colors"> Get Started"</a>
+                </div>
+                
+                <button class="md:hidden p-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-16 bg-gradient-to-br from-soft-cream to-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16 reveal">
+                <h1 class="text-5xl font-display font-bold mb-6">
+                    Oceanographic <span class="text-copper-orange">Data Sources</span>
+                </h1>
+                <p class="text-xl text-warm-stone max-w-3xl mx-auto leading-relaxed">
+                    Comprehensive, validated oceanographic datasets from ARGO floats, satellites, research vessels, and collaborative international programs.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ARGO Program Overview -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div class="reveal">
+                    <h2 class="text-3xl font-display font-bold mb-8">The ARGO Program</h2>
+                    <div class="space-y-6">
+                        <p class="text-warm-stone leading-relaxed">
+                            ARGO is a global array of almost 4,000 robotic profiling floats that measure the temperature and salinity of the upper 2,000 meters of the ocean. This international collaboration provides the first global, in-situ data for understanding changing ocean conditions.
+                        </p>
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="text-center p-4 bg-soft-cream rounded-xl">
+                                <div class="text-2xl font-bold text-copper-orange font-mono">3,847</div>
+                                <div class="text-sm text-warm-stone">Active Floats</div>
+                            </div>
+                            <div class="text-center p-4 bg-soft-cream rounded-xl">
+                                <div class="text-2xl font-bold text-copper-orange font-mono">2M+</div>
+                                <div class="text-sm text-warm-stone">Profiles Collected</div>
+                            </div>
+                            <div class="text-center p-4 bg-soft-cream rounded-xl">
+                                <div class="text-2xl font-bold text-copper-orange font-mono">30</div>
+                                <div class="text-sm text-warm-stone">Countries</div>
+                            </div>
+                            <div class="text-center p-4 bg-soft-cream rounded-xl">
+                                <div class="text-2xl font-bold text-copper-orange font-mono">92%</div>
+                                <div class="text-sm text-warm-stone">Ocean Coverage</div>
+                            </div>
+                        </div>
+                        <p class="text-warm-stone leading-relaxed">
+                            Each ARGO float operates on a 10-day cycle, descending to 2,000 meters depth before rising to the surface to transmit data via satellite. This data becomes publicly available within hours of collection.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="reveal stagger-delay-2">
+                    <img src="3.jpeg" alt="ARGO Float Network" class="w-full rounded-2xl shadow-2xl">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Sources Grid -->
+    <section class="py-16 bg-soft-cream">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-12 reveal">
+                <h2 class="text-3xl font-display font-bold mb-4">Integrated Data Sources</h2>
+                <p class="text-warm-stone max-w-2xl mx-auto">
+                    Samudra-I integrates multiple oceanographic data sources with rigorous quality control and validation protocols.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="data-card bg-white rounded-2xl p-8 reveal stagger-delay-1">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="w-12 h-12 bg-copper-orange/20 rounded-xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-copper-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                        <div class="quality-indicator quality-excellent"></div>
+                    </div>
+                    <h3 class="text-xl font-display font-semibold mb-4">ARGO Floats</h3>
+                    <div class="space-y-3 mb-6">
+                        <div class="flex justify-between">
+                            <span class="text-sm text-warm-stone">Temperature Accuracy</span>
+                            <span class="font-mono text-sm">±0.002°C</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-warm-stone">Salinity Accuracy</span>
+                            <span class="font-mono text-sm">±0.01 PSU</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-warm-stone">Pressure Accuracy</span>
+                            <span class="font-mono text-sm">±2.4 dbar</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-warm-stone">Update Frequency</span>
+                            <span class="font-mono text-sm">10 days</span>
+                        </div>
+                    </div>
+                    <p class="text-warm-stone text-sm leading-relaxed">
+                        Global array of autonomous profiling floats providing temperature and salinity profiles from surface to 2,000m depth.
+                    </p>
+                </div>
+                
+                <div class="data-card bg-white rounded-2xl p-8 reveal stagger-delay-2">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="w-12 h-12 bg-copper-orange/20 rounded-xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-copper-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        <div class="quality-indicator quality-excellent"></div>
+                    </div>
+                    <h3 class="text-xl font-display font-semibold mb-4">Satellite Data</h3>
+                    <div class="space-y-3 mb-6">
+                        <div class="flex justify-between">
+                            <span class="text-sm text-warm-stone">Sea Surface Temperature</span>
+                            <span class="font-mono text-sm">±0.1°C</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-warm-stone">Sea Level Anomaly</span>
+                            <span class="font-mono text-sm">±2 cm</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-warm-stone">Chlorophyll Concentration</span>
+                            <span class="font-mono text-sm">±30%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-warm-stone">Update Frequency</span>
+                            <span class="font-mono text-sm">Daily</span>
+                        </div>
+                    </div>
+                    <p class="text-warm-stone text-sm leading-relaxed">
+                        Multi-satellite observations providing global coverage of sea surface properties and ocean color measurements.
+                    </p>
+                </div>
+                
+                <div class="data-card bg-white rounded-2xl p-8 reveal stagger-delay-3">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="w-12 h-12 bg-copper-orange/20 rounded-xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-copper-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                            </svg>
+                        </div>
+                        <div class="quality-indicator quality-good"></div>
+                    </div>
+                    <h3 class="text-xl font-display font-semibold mb-4">Research Vessels</h3>
+                    <div class="space-y-3 mb-6">
+                        <div class="flex justify-between">
+                            <span class="text-sm text-warm-stone">CTD Measurements</span>
+                            <span class="font-mono text-sm">±0.001°C</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-warm-stone">Water Samples</span>
+                            <span class="font-mono text-sm">±0.003 PSU</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-warm-stone">Full Depth Coverage</span>
+                            <span class="font-mono text-sm">0-6000m</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-warm-stone">Update Frequency</span>
+                            <span class="font-mono text-sm">Campaign-based</span>
+                        </div>
+                    </div>
+                    <p class="text-warm-stone text-sm leading-relaxed">
+                        High-precision shipboard measurements providing full-depth oceanographic profiles and water sample analysis.
+                    </p>
+                </div>
+                
+                <div class="data-card bg-white rounded-2xl p-8 reveal stagger-delay-1">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="w-12 h-12 bg-copper-orange/20 rounded-xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-copper-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="quality-indicator quality-good"></div>
+                    </div>
+                    <h3 class="text-xl font-display font-semibold mb-4">Moored Buoys</h3>
+                    <div class="space-y-3 mb-6">
+                        <div class="flex justify-between">
+                            <span class="text-sm text-warm-stone">Surface Temperature</span>
+                            <span class="font-mono text-sm">±0.05°C</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-warm-stone">Wind Measurements</span>
+                            <span class="font-mono text-sm">±0.5 m/s</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-warm-stone">Air Pressure</span>
+                            <span class="font-mono text-sm">±0.1 hPa</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-warm-stone">Update Frequency</span>
+                            <span class="font-mono text-sm">Hourly</span>
+                        </div>
+                    </div>
+                    <p class="text-warm-stone text-sm leading-relaxed">
+                        Fixed ocean observatories providing continuous surface meteorological and oceanographic measurements.
+                    </p>
+                </div>
+                
+                <div class="data-card bg-white rounded-2xl p-8 reveal stagger-delay-2">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="w-12 h-12 bg-copper-orange/20 rounded-xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-copper-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="quality-indicator quality-fair"></div>
+                    </div>
+                    <h3 class="text-xl font-display font-semibold mb-4">Glider Networks</h3>
+                    <div class="space-y-3 mb-6">
+                        <div class="flex justify-between">
+                            <span class="text-sm text-warm-stone">Temperature Accuracy</span>
+                            <span class="font-mono text-sm">±0.01°C</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-warm-stone">Salinity Accuracy</span>
+                            <span class="font-mono text-sm">±0.02 PSU</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-warm-stone">Mission Duration</span>
+                            <span class="font-mono text-sm">3-6 months</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-warm-stone">Update Frequency</span>
+                            <span class="font-mono text-sm">4-6 hours</span>
+                        </div>
+                    </div>
+                    <p class="text-warm-stone text-sm leading-relaxed">
+                        Autonomous underwater gliders providing high-resolution transect data across targeted ocean regions.
+                    </p>
+                </div>
+                
+                <div class="data-card bg-white rounded-2xl p-8 reveal stagger-delay-3">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="w-12 h-12 bg-copper-orange/20 rounded-xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-copper-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                            </svg>
+                        </div>
+                        <div class="quality-indicator quality-good"></div>
+                    </div>
+                    <h3 class="text-xl font-display font-semibold mb-4">Historical Archives</h3>
+                    <div class="space-y-3 mb-6">
+                        <div class="flex justify-between">
+                            <span class="text-sm text-warm-stone">Data Coverage</span>
+                            <span class="font-mono text-sm">1950-Present</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-warm-stone">CTD Profiles</span>
+                            <span class="font-mono text-sm">2.5M+</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-warm-stone">Bottle Samples</span>
+                            <span class="font-mono text-sm">1.8M+</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-warm-stone">Quality Control</span>
+                            <span class="font-mono text-sm">Manual Review</span>
+                        </div>
+                    </div>
+                    <p class="text-warm-stone text-sm leading-relaxed">
+                        Historical oceanographic measurements from research cruises and expeditions spanning over 70 years.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quality Control -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-12 reveal">
+                <h2 class="text-3xl font-display font-bold mb-4">Data Quality Control</h2>
+                <p class="text-warm-stone max-w-2xl mx-auto">
+                    Rigorous quality control procedures ensure data accuracy and reliability for scientific research.
+                </p>
+            </div>
+            
+            <div class="grid lg:grid-cols-3 gap-8">
+                <div class="reveal stagger-delay-1">
+                    <div class="bg-soft-cream rounded-2xl p-8 h-full">
+                        <div class="w-12 h-12 bg-copper-orange/20 rounded-xl flex items-center justify-center mb-6">
+                            <svg class="w-6 h-6 text-copper-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-display font-semibold mb-4">Real-time QC</h3>
+                        <p class="text-warm-stone leading-relaxed mb-4">
+                            Automated quality control checks performed on data as it is received, including range tests, gradient tests, and density inversion checks.
+                        </p>
+                        <ul class="space-y-2 text-sm text-warm-stone">
+                            <li>• Range and spike detection</li>
+                            <li>• Climatology comparison</li>
+                            <li>• Density inversion tests</li>
+                            <li>• Statistical outlier detection</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="reveal stagger-delay-2">
+                    <div class="bg-soft-cream rounded-2xl p-8 h-full">
+                        <div class="w-12 h-12 bg-copper-orange/20 rounded-xl flex items-center justify-center mb-6">
+                            <svg class="w-6 h-6 text-copper-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-display font-semibold mb-4">Delayed-mode QC</h3>
+                        <p class="text-warm-stone leading-relaxed mb-4">
+                            Expert scientific review and adjustment of data using statistical methods and comparison with high-quality reference datasets.
+                        </p>
+                        <ul class="space-y-2 text-sm text-warm-stone">
+                            <li>• Expert visual examination</li>
+                            <li>• Sensor drift correction</li>
+                            <li>• Reference data comparison</li>
+                            <li>• Error estimation</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="reveal stagger-delay-3">
+                    <div class="bg-soft-cream rounded-2xl p-8 h-full">
+                        <div class="w-12 h-12 bg-copper-orange/20 rounded-xl flex items-center justify-center mb-6">
+                            <svg class="w-6 h-6 text-copper-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-display font-semibold mb-4">Cross-validation</h3>
+                        <p class="text-warm-stone leading-relaxed mb-4">
+                            Multiple independent validation procedures including satellite altimetry comparison and neighbor consistency checks.
+                        </p>
+                        <ul class="space-y-2 text-sm text-warm-stone">
+                            <li>• Satellite altimetry comparison</li>
+                            <li>• Neighbor consistency checks</li>
+                            <li>• Mapping error residuals</li>
+                            <li>• Multi-platform validation</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Access & Coverage -->
+    <section class="py-16 bg-soft-cream">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-12 reveal">
+                <h2 class="text-3xl font-display font-bold mb-4">Global Data Coverage</h2>
+                <p class="text-warm-stone max-w-2xl mx-auto">
+                    Real-time and historical oceanographic data spanning all major ocean basins and climate zones.
+                </p>
+            </div>
+            
+            <div class="grid lg:grid-cols-2 gap-12">
+                <div class="reveal stagger-delay-1">
+                    <div class="bg-white rounded-2xl p-8">
+                        <h3 class="text-xl font-display font-semibold mb-6">Coverage Statistics</h3>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center p-3 bg-soft-cream rounded-lg">
+                                <span class="text-warm-stone">Global Ocean Coverage</span>
+                                <span class="font-mono font-semibold text-copper-orange">92%</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-soft-cream rounded-lg">
+                                <span class="text-warm-stone">Data Points Available</span>
+                                <span class="font-mono font-semibold text-copper-orange">2.1M+</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-soft-cream rounded-lg">
+                                <span class="text-warm-stone">Temporal Coverage</span>
+                                <span class="font-mono font-semibold text-copper-orange">1999-2024</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-soft-cream rounded-lg">
+                                <span class="text-warm-stone">Daily Updates</span>
+                                <span class="font-mono font-semibold text-copper-orange">~400 profiles</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="reveal stagger-delay-2">
+                    <div class="bg-white rounded-2xl p-8">
+                        <h3 class="text-xl font-display font-semibold mb-6">Data Access</h3>
+                        <div class="space-y-6">
+                            <div>
+                                <h4 class="font-medium mb-2">Real-time Data</h4>
+                                <p class="text-sm text-warm-stone leading-relaxed">
+                                    Data available within 24 hours of collection through global data assembly centers and satellite transmission systems.
+                                </p>
+                            </div>
+                            <div>
+                                <h4 class="font-medium mb-2">Delayed-mode Data</h4>
+                                <p class="text-sm text-warm-stone leading-relaxed">
+                                    Quality-controlled datasets available 6-12 months after collection with expert review and calibration adjustments.
+                                </p>
+                            </div>
+                            <div>
+                                <h4 class="font-medium mb-2">Citation Requirements</h4>
+                                <p class="text-sm text-warm-stone leading-relaxed">
+                                    All data usage requires proper attribution to the Argo Program and contributing national programs.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-16 bg-deep-charcoal text-white">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <div class="reveal">
+                <h2 class="text-3xl font-display font-bold mb-6">
+                    Access Quality-Controlled Ocean Data
+                </h2>
+                <p class="text-xl text-gray-300 mb-8 leading-relaxed">
+                    Start using validated oceanographic datasets for your research with comprehensive quality control and source attribution.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button class="bg-copper-orange text-white px-8 py-3 rounded-lg font-medium hover:bg-copper-orange/90 transition-colors">
+                        Explore Datasets
+                    </button>
+                    <button class="border-2 border-white text-white px-8 py-3 rounded-lg font-medium hover:bg-white hover:text-deep-charcoal transition-colors">
+                        Data Documentation
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-soft-cream py-12 border-t border-warm-stone/20">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-gradient-to-br from-copper-orange to-warm-stone rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">S</span>
+                    </div>
+                    <span class="font-display font-bold text-xl">Samudra-I</span>
+                </div>
+                
+                <div class="text-sm text-warm-stone">
+                    © 2024 Samudra-I. Empowering oceanographic research through AI.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize page animations
+        document.addEventListener('DOMContentLoaded', () => {
+            // Scroll animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.reveal').forEach(el => {
+                observer.observe(el);
+            });
+        });
+    </script>
+</body>
+</html>

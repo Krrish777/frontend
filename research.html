@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Tools | Samudra-I</title>
+    <meta name="description" content="Advanced oceanographic research tools and AI-powered analysis capabilities for academic researchers and field scientists.">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'deep-charcoal': '#2A2A2A',
+                        'warm-stone': '#8B7D6B',
+                        'copper-orange': '#B87333',
+                        'soft-cream': '#F8F6F3'
+                    },
+                    fontFamily: {
+                        'display': ['Inter', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #F8F6F3 0%, #F5F3F0 100%);
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #B87333;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .tool-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .tool-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(42, 42, 42, 0.15);
+        }
+        
+        .dashboard-panel {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(139, 125, 107, 0.2);
+        }
+        
+        .reveal.stagger-delay-1.active { transition-delay: 0.1s; }
+        .reveal.stagger-delay-2.active { transition-delay: 0.2s; }
+        .reveal.stagger-delay-3.active { transition-delay: 0.3s; }
+        .reveal.stagger-delay-4.active { transition-delay: 0.4s; }
+    </style>
+</head>
+<body class="text-deep-charcoal">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-soft-cream/90 backdrop-blur-md border-b border-warm-stone/20">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-gradient-to-br from-copper-orange to-warm-stone rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">S</span>
+                    </div>
+                    <span class="font-display font-bold text-xl">Samudra-I</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="nav-link text-sm font-medium hover:text-copper-orange">Home</a>
+                    <a href="research.html" class="nav-link text-sm font-medium text-copper-orange">Research</a>
+                    <a href="data.html" class="nav-link text-sm font-medium hover:text-copper-orange">Data</a>
+                    <a href="about.html" class="nav-link text-sm font-medium hover:text-copper-orange">About</a>
+                    <a href="auth.html" class="bg-copper-orange text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-copper-orange/90 transition-colors"> Get Started"</a>
+                </div>
+                
+                <button class="md:hidden p-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-16 bg-gradient-to-br from-soft-cream to-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16 reveal">
+                <h1 class="text-5xl font-display font-bold mb-6">
+                    Advanced Research <span class="text-copper-orange">Tools</span>
+                </h1>
+                <p class="text-xl text-warm-stone max-w-3xl mx-auto leading-relaxed">
+                    Powerful AI-driven analysis tools designed for oceanographic research, data exploration, and collaborative scientific discovery.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Dashboard -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-12 reveal">
+                <h2 class="text-3xl font-display font-bold mb-4">Data Exploration Dashboard</h2>
+                <p class="text-warm-stone max-w-2xl mx-auto">
+                    Interactive tools for exploring oceanographic datasets with real-time visualization and analysis capabilities.
+                </p>
+            </div>
+            
+            <div class="grid lg:grid-cols-4 gap-6 mb-8">
+                <!-- Control Panel -->
+                <div class="lg:col-span-1 reveal stagger-delay-1">
+                    <div class="dashboard-panel rounded-2xl p-6 h-full">
+                        <h3 class="font-display font-semibold mb-6">Dataset Controls</h3>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Data Source</label>
+                                <select class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-copper-orange/50">
+                                    <option>ARGO Floats</option>
+                                    <option>Satellite Data</option>
+                                    <option>Research Vessels</option>
+                                    <option>Moored Buoys</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Parameter</label>
+                                <select class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-copper-orange/50">
+                                    <option>Temperature</option>
+                                    <option>Salinity</option>
+                                    <option>Current Velocity</option>
+                                    <option>Oxygen Content</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Time Range</label>
+                                <select class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-copper-orange/50">
+                                    <option>Last 30 Days</option>
+                                    <option>Last 6 Months</option>
+                                    <option>Last Year</option>
+                                    <option>Last 5 Years</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Region</label>
+                                <select class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-copper-orange/50">
+                                    <option>Global</option>
+                                    <option>Pacific Ocean</option>
+                                    <option>Atlantic Ocean</option>
+                                    <option>Indian Ocean</option>
+                                    <option>Arctic Ocean</option>
+                                </select>
+                            </div>
+                            
+                            <button class="w-full bg-copper-orange text-white py-2 rounded-lg font-medium hover:bg-copper-orange/90 transition-colors">
+                                Update Visualization
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Main Visualization -->
+                <div class="lg:col-span-3 reveal stagger-delay-2">
+                    <div class="dashboard-panel rounded-2xl p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-display font-semibold">Global Temperature Distribution</h3>
+                            <div class="flex space-x-2">
+                                <button class="px-3 py-1 text-xs bg-copper-orange/20 text-copper-orange rounded-full">2D Map</button>
+                                <button class="px-3 py-1 text-xs text-warm-stone rounded-full">3D View</button>
+                                <button class="px-3 py-1 text-xs text-warm-stone rounded-full">Cross Section</button>
+                            </div>
+                        </div>
+                        <div id="global-map" class="w-full h-96 bg-gray-50 rounded-lg"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Research Tools Grid -->
+    <section class="py-16 bg-soft-cream">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-12 reveal">
+                <h2 class="text-3xl font-display font-bold mb-4">Research Capabilities</h2>
+                <p class="text-warm-stone max-w-2xl mx-auto">
+                    Comprehensive suite of tools for oceanographic analysis, visualization, and collaboration.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="tool-card bg-white rounded-2xl p-8 reveal stagger-delay-1">
+                    <div class="w-12 h-12 bg-copper-orange/20 rounded-xl flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-copper-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-display font-semibold mb-4">Query Builder</h3>
+                    <p class="text-warm-stone leading-relaxed mb-6">
+                        Construct complex oceanographic queries with intuitive filters for regions, time periods, and data parameters.
+                    </p>
+                    <button class="text-copper-orange font-medium hover:text-copper-orange/80 transition-colors">
+                        Explore Tool →
+                    </button>
+                </div>
+                
+                <div class="tool-card bg-white rounded-2xl p-8 reveal stagger-delay-2">
+                    <div class="w-12 h-12 bg-copper-orange/20 rounded-xl flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-copper-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-display font-semibold mb-4">Visual Generator</h3>
+                    <p class="text-warm-stone leading-relaxed mb-6">
+                        Create publication-ready charts, maps, and cross-sections with automatic source attribution and styling.
+                    </p>
+                    <button class="text-copper-orange font-medium hover:text-copper-orange/80 transition-colors">
+                        Create Visual →
+                    </button>
+                </div>
+                
+                <div class="tool-card bg-white rounded-2xl p-8 reveal stagger-delay-3">
+                    <div class="w-12 h-12 bg-copper-orange/20 rounded-xl flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-copper-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-display font-semibold mb-4">AI Analysis</h3>
+                    <p class="text-warm-stone leading-relaxed mb-6">
+                        Leverage machine learning to identify patterns, anomalies, and trends in oceanographic data automatically.
+                    </p>
+                    <button class="text-copper-orange font-medium hover:text-copper-orange/80 transition-colors">
+                        Run Analysis →
+                    </button>
+                </div>
+                
+                <div class="tool-card bg-white rounded-2xl p-8 reveal stagger-delay-1">
+                    <div class="w-12 h-12 bg-copper-orange/20 rounded-xl flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-copper-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-display font-semibold mb-4">Data Export</h3>
+                    <p class="text-warm-stone leading-relaxed mb-6">
+                        Export datasets and visualizations in multiple formats including CSV, NetCDF, and high-resolution graphics.
+                    </p>
+                    <button class="text-copper-orange font-medium hover:text-copper-orange/80 transition-colors">
+                        Export Data →
+                    </button>
+                </div>
+                
+                <div class="tool-card bg-white rounded-2xl p-8 reveal stagger-delay-2">
+                    <div class="w-12 h-12 bg-copper-orange/20 rounded-xl flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-copper-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-display font-semibold mb-4">Collaboration</h3>
+                    <p class="text-warm-stone leading-relaxed mb-6">
+                        Share research projects, visualizations, and insights with team members and external collaborators.
+                    </p>
+                    <button class="text-copper-orange font-medium hover:text-copper-orange/80 transition-colors">
+                        Collaborate →
+                    </button>
+                </div>
+                
+                <div class="tool-card bg-white rounded-2xl p-8 reveal stagger-delay-3">
+                    <div class="w-12 h-12 bg-copper-orange/20 rounded-xl flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-copper-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-display font-semibold mb-4">Smart Queries</h3>
+                    <p class="text-warm-stone leading-relaxed mb-6">
+                        Natural language processing for conversational data analysis with contextual understanding.
+                    </p>
+                    <button class="text-copper-orange font-medium hover:text-copper-orange/80 transition-colors">
+                        Try Queries →
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Case Studies -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-12 reveal">
+                <h2 class="text-3xl font-display font-bold mb-4">Research Applications</h2>
+                <p class="text-warm-stone max-w-2xl mx-auto">
+                    Real-world applications of Samudra-I in oceanographic research and climate science.
+                </p>
+            </div>
+            
+            <div class="grid lg:grid-cols-2 gap-12">
+                <div class="reveal stagger-delay-1">
+                    <img src="1.jpeg" alt="Field scientist on research vessel with oceanographic equipment and scientific instruments" class="w-full rounded-2xl shadow-lg mb-6">
+                    <h3 class="text-xl font-display font-semibold mb-4">Field Expedition Support</h3>
+                    <p class="text-warm-stone leading-relaxed mb-4">
+                        Research vessels use Samudra-I to validate real-time measurements against historical ARGO data, ensuring data quality and identifying oceanographic features during expeditions.
+                    </p>
+                    <div class="flex items-center space-x-4 text-sm text-warm-stone">
+                        <span>• Real-time validation</span>
+                        <span>• Historical comparison</span>
+                        <span>• Quality control</span>
+                    </div>
+                </div>
+                
+                <div class="reveal stagger-delay-2">
+                    <img src="2.jpeg" class = "text-xl font-display font-semibold mb-4">Climate Policy Development</h3>
+                    <p class="text-warm-stone leading-relaxed mb-4">
+                        Policy makers generate evidence-based visualizations for marine conservation strategies, climate adaptation planning, and international ocean governance decisions.
+                    </p>
+                    <div class="flex items-center space-x-4 text-sm text-warm-stone">
+                        <span>• Evidence-based decisions</span>
+                        <span>• Visual reporting</span>
+                        <span>• Policy documentation</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-16 bg-deep-charcoal text-white">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <div class="reveal">
+                <h2 class="text-3xl font-display font-bold mb-6">
+                    Start Your Research Journey
+                </h2>
+                <p class="text-xl text-gray-300 mb-8 leading-relaxed">
+                    Access powerful oceanographic analysis tools and accelerate your research with AI-powered insights.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button class="bg-copper-orange text-white px-8 py-3 rounded-lg font-medium hover:bg-copper-orange/90 transition-colors">
+                        Access Research Tools
+                    </button>
+                    <button class="border-2 border-white text-white px-8 py-3 rounded-lg font-medium hover:bg-white hover:text-deep-charcoal transition-colors">
+                        View Documentation
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-soft-cream py-12 border-t border-warm-stone/20">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-gradient-to-br from-copper-orange to-warm-stone rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">S</span>
+                    </div>
+                    <span class="font-display font-bold text-xl">Samudra-I</span>
+                </div>
+                
+                <div class="text-sm text-warm-stone">
+                    © 2024 Samudra-I. Empowering oceanographic research through AI.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize page animations
+        document.addEventListener('DOMContentLoaded', () => {
+            // Scroll animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.reveal').forEach(el => {
+                observer.observe(el);
+            });
+
+            // Initialize global map visualization
+            const mapContainer = document.getElementById('global-map');
+            if (mapContainer) {
+                try {
+                    const mapChart = echarts.init(mapContainer);
+                    
+                    // Sample global temperature data
+                    const data = [];
+                    for (let i = 0; i < 100; i++) {
+                        data.push([
+                            Math.random() * 360 - 180, // longitude
+                            Math.random() * 180 - 90,  // latitude
+                            Math.random() * 30 + 5     // temperature
+                        ]);
+                    }
+
+                    const option = {
+                        backgroundColor: 'transparent',
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: function(params) {
+                                return `Temperature: ${params.value[2].toFixed(1)}°C<br/>` +
+                                       `Location: ${params.value[1].toFixed(2)}°, ${params.value[0].toFixed(2)}°`;
+                            }
+                        },
+                        xAxis: {
+                            type: 'value',
+                            min: -180,
+                            max: 180,
+                            axisLabel: { color: '#2A2A2A' },
+                            axisLine: { lineStyle: { color: '#8B7D6B' } },
+                            splitLine: { show: false }
+                        },
+                        yAxis: {
+                            type: 'value',
+                            min: -90,
+                            max: 90,
+                            axisLabel: { color: '#2A2A2A' },
+                            axisLine: { lineStyle: { color: '#8B7D6B' } },
+                            splitLine: { show: false }
+                        },
+                        series: [{
+                            type: 'scatter',
+                            data: data.map(item => [item[0], item[1], item[2]]),
+                            symbolSize: function(val) {
+                                return Math.max(val[2] / 2, 4);
+                            },
+                            itemStyle: {
+                                color: function(params) {
+                                    const temp = params.value[2];
+                                    if (temp < 10) return '#4575b4';
+                                    if (temp < 20) return '#fee090';
+                                    return '#d73027';
+                                }
+                            }
+                        }]
+                    };
+
+                    mapChart.setOption(option);
+
+                    window.addEventListener('resize', () => {
+                        mapChart.resize();
+                    });
+                } catch (error) {
+                    console.error('Error initializing global map:', error);
+                    // Fallback: show a simple message
+                    mapContainer.innerHTML = '<div class="flex items-center justify-center h-full text-warm-stone">Global map visualization loading...</div>';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

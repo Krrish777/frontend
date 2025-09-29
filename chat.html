@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Samudra-I Chat | AI Oceanographic Assistant</title>
+    <meta name="description" content="Chat with Samudra-I AI assistant for oceanographic research, data analysis, and visualization.">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'deep-charcoal': '#2A2A2A',
+                        'warm-stone': '#8B7D6B',
+                        'copper-orange': '#B87333',
+                        'soft-cream': '#F8F6F3'
+                    },
+                    fontFamily: {
+                        'display': ['Inter', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #F8F6F3 0%, #F5F3F0 100%);
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .chat-container {
+            height: calc(100vh - 200px);
+            min-height: 500px;
+        }
+        
+        .message-bubble {
+            animation: messageSlide 0.3s ease-out;
+        }
+        
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .typing-indicator {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        .chat-input {
+            transition: all 0.3s ease;
+        }
+        
+        .chat-input:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(184, 115, 51, 0.15);
+        }
+        
+        .sidebar {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(139, 125, 107, 0.2);
+        }
+        
+        .chat-area {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        
+        .nav-link {
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            background: rgba(184, 115, 51, 0.1);
+            color: #B87333;
+        }
+        
+        .quick-action {
+            transition: all 0.3s ease;
+        }
+        
+        .quick-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(184, 115, 51, 0.2);
+        }
+        
+        .user-avatar {
+            background: linear-gradient(135deg, #B87333, #8B7D6B);
+        }
+        
+        .ai-avatar {
+            background: linear-gradient(135deg, #2A2A2A, #8B7D6B);
+        }
+        
+        .chart-container {
+            background: rgba(248, 246, 243, 0.8);
+            border: 1px solid rgba(139, 125, 107, 0.2);
+        }
+        
+        .loading-dots {
+            animation: loadingDots 1.4s ease-in-out infinite both;
+        }
+        
+        .loading-dots:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dots:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes loadingDots {
+            0%, 80%, 100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .connection-status {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .connection-status.connected {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .connection-status.disconnected {
+            background: #fecaca;
+            color: #dc2626;
+            border: 1px solid #fca5a5;
+        }
+
+        .status-dot {
+            width: 0.5rem;
+            height: 0.5rem;
+            border-radius: 50%;
+        }
+
+        .status-dot.connected {
+            background: #22c55e;
+        }
+
+        .status-dot.disconnected {
+            background: #ef4444;
+        }
+
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body class="text-deep-charcoal">
+    <!-- Connection Status Indicator -->
+    <div id="connection-status" class="connection-status disconnected">
+        <div class="status-dot disconnected"></div>
+        <span>Connecting to API...</span>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="bg-soft-cream/90 backdrop-blur-md border-b border-warm-stone/20">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-gradient-to-br from-copper-orange to-warm-stone rounded-lg flex items-center justify-center">
+                            <span class="text-white font-bold text-sm">S</span>
+                        </div>
+                        <span class="font-display font-bold text-xl">Samudra-I</span>
+                    </div>
+                    <div class="hidden md:flex items-center space-x-6">
+                        <a href="index.html" class="text-sm font-medium text-warm-stone hover:text-copper-orange transition-colors">Home</a>
+                        <a href="research.html" class="text-sm font-medium text-warm-stone hover:text-copper-orange transition-colors">Research</a>
+                        <a href="data.html" class="text-sm font-medium text-warm-stone hover:text-copper-orange transition-colors">Data</a>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="hidden md:flex items-center space-x-2 text-sm text-warm-stone">
+                        <div class="w-6 h-6 user-avatar rounded-full flex items-center justify-center">
+                            <span class="text-white text-xs font-medium" id="user-initials">JD</span>
+                        </div>
+                        <span id="user-name">John Doe</span>
+                    </div>
+                    <button id="logout-btn" class="text-sm text-warm-stone hover:text-copper-orange transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="sidebar w-80 flex flex-col">
+            <!-- New Chat Button -->
+            <div class="p-6 border-b border-gray-200">
+                <button id="new-chat" class="w-full bg-copper-orange text-white py-3 rounded-lg font-medium hover:bg-copper-orange/90 transition-colors flex items-center justify-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    <span>New Research Query</span>
+                </button>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="font-semibold mb-4">Quick Actions</h3>
+                <div class="space-y-2">
+                    <button class="quick-action w-full text-left p-3 rounded-lg hover:bg-soft-cream transition-colors">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="font-medium text-sm">Temperature Analysis</div>
+                                <div class="text-xs text-warm-stone">Global ocean trends</div>
+                            </div>
+                        </div>
+                    </button>
+                    
+                    <button class="quick-action w-full text-left p-3 rounded-lg hover:bg-soft-cream transition-colors">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="font-medium text-sm">Salinity Patterns</div>
+                                <div class="text-xs text-warm-stone">Regional comparisons</div>
+                            </div>
+                        </div>
+                    </button>
+                    
+                    <button class="quick-action w-full text-left p-3 rounded-lg hover:bg-soft-cream transition-colors">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="font-medium text-sm">Current Analysis</div>
+                                <div class="text-xs text-warm-stone">Ocean circulation</div>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Queries -->
+            <div class="p-6 flex-1 overflow-y-auto">
+                <h3 class="font-semibold mb-4">Recent Queries</h3>
+                <div id="recent-queries" class="space-y-2">
+                    <!-- Recent queries will be populated here -->
+                </div>
+            </div>
+
+            <!-- Settings -->
+            <div class="p-6 border-t border-gray-200">
+                <div class="space-y-2">
+                    <button class="nav-link w-full text-left p-2 rounded-lg flex items-center space-x-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        <span>Settings</span>
+                    </button>
+                    
+                    <button class="nav-link w-full text-left p-2 rounded-lg flex items-center space-x-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span>Help & Support</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="flex-1 flex flex-col">
+            <!-- Chat Header -->
+            <div class="chat-area border-b border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-display font-semibold">Samudra-I Assistant</h2>
+                        <p class="text-sm text-warm-stone">AI-powered oceanographic research assistant</p>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button id="export-chat" class="p-2 text-warm-stone hover:text-copper-orange transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </button>
+                        <button id="fullscreen" class="p-2 text-warm-stone hover:text-copper-orange transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Messages -->
+            <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-6">
+                <!-- Welcome message -->
+                <div class="message-bubble">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-10 h-10 ai-avatar rounded-full flex items-center justify-center flex-shrink-0">
+                            <span class="text-white font-bold text-sm">S</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="bg-soft-cream rounded-2xl p-4">
+                                <p class="text-sm leading-relaxed mb-3">
+                                    Welcome to Samudra-I! I'm your AI-powered oceanographic research assistant powered by advanced RAG (Retrieval-Augmented Generation) technology. I can help you analyze ocean data, generate visualizations, and provide insights from ARGO floats and other oceanographic datasets.
+                                </p>
+                                <p class="text-sm text-warm-stone">
+                                    Try asking me about temperature trends, salinity patterns, current velocities, or any other oceanographic phenomena. I'll provide you with data-driven insights, traceable sources, and can generate visualizations when relevant.
+                                </p>
+                            </div>
+                            
+                            <!-- Quick start suggestions -->
+                            <div class="mt-4">
+                                <p class="text-xs text-warm-stone mb-2">Quick start:</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <button class="quick-suggest px-3 py-1 bg-white border border-gray-200 rounded-full text-xs hover:bg-copper-orange hover:text-white hover:border-copper-orange transition-colors">
+                                        Show me Pacific temperature trends
+                                    </button>
+                                    <button class="quick-suggest px-3 py-1 bg-white border border-gray-200 rounded-full text-xs hover:bg-copper-orange hover:text-white hover:border-copper-orange transition-colors">
+                                        Compare Arctic and Antarctic salinity
+                                    </button>
+                                    <button class="quick-suggest px-3 py-1 bg-white border border-gray-200 rounded-full text-xs hover:bg-copper-orange hover:text-white hover:border-copper-orange transition-colors">
+                                        Generate Gulf Stream analysis
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Input -->
+            <div class="chat-area border-t border-gray-200 p-6">
+                <div class="flex items-end space-x-4">
+                    <div class="flex-1">
+                        <textarea 
+                            id="chat-input" 
+                            class="chat-input w-full px-4 py-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-copper-orange/50 focus:border-copper-orange"
+                            placeholder="Ask about oceanographic data, trends, or phenomena..."
+                            rows="1"
+                        ></textarea>
+                    </div>
+                    <button 
+                        id="send-message" 
+                        class="bg-copper-orange text-white p-3 rounded-lg hover:bg-copper-orange/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Input suggestions -->
+                <div class="mt-3 flex flex-wrap gap-2">
+                    <button class="input-suggest px-3 py-1 bg-soft-cream rounded-full text-xs text-warm-stone hover:bg-copper-orange hover:text-white transition-colors">
+                        What are the current ARGO float positions?
+                    </button>
+                    <button class="input-suggest px-3 py-1 bg-soft-cream rounded-full text-xs text-warm-stone hover:bg-copper-orange hover:text-white transition-colors">
+                        Show me thermocline depth variations
+                    </button>
+                    <button class="input-suggest px-3 py-1 bg-soft-cream rounded-full text-xs text-warm-stone hover:bg-copper-orange hover:text-white transition-colors">
+                        Analyze ocean heat content trends
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Modal -->
+    <div id="chart-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl p-8 max-w-4xl max-h-96 mx-4 w-full">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-display font-semibold">Data Visualization</h3>
+                <button id="close-chart" class="text-warm-stone hover:text-copper-orange transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div id="chart-content" class="h-80">
+                <!-- Chart will be rendered here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced Configuration
+        const CONFIG = {
+            API_BASE_URL: 'http://localhost:7777',
+            ENABLE_FALLBACK: true,
+            CONNECTION_CHECK_INTERVAL: 30000,
+            MAX_RETRIES: 3,
+            RETRY_DELAY: 2000
+        };
+
+        class ChatApp {
+            constructor() {
+                this.user = null;
+                this.messages = [];
+                this.isTyping = false;
+                this.apiBaseUrl = CONFIG.API_BASE_URL;
+                this.connectionStatus = false;
+                this.retryCount = 0;
+                this.init();
+            }
+
+            init() {
+                this.loadUser();
+                this.setupEventListeners();
+                this.loadRecentQueries();
+                this.checkConnection();
+                this.animateEntrance();
+                
+                // Periodic connection check
+                setInterval(() => {
+                    this.checkConnection();
+                }, CONFIG.CONNECTION_CHECK_INTERVAL);
+            }
+
+            loadUser() {
+                // Create a default user if none exists
+                const userData = localStorage.getItem('samudra_user');
+                if (userData) {
+                    this.user = JSON.parse(userData);
+                } else {
+                    this.user = {
+                        name: 'Ocean Researcher',
+                        email: 'researcher@marine.org',
+                        id: 'user_' + Math.random().toString(36).substr(2, 9)
+                    };
+                    localStorage.setItem('samudra_user', JSON.stringify(this.user));
+                }
+                this.updateUserInterface();
+            }
+
+            updateUserInterface() {
+                const userInitials = document.getElementById('user-initials');
+                const userName = document.getElementById('user-name');
+                
+                if (this.user) {
+                    const initials = this.user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                    userInitials.textContent = initials;
+                    userName.textContent = this.user.name;
+                }
+            }
+
+            async checkConnection() {
+                try {
+                    const response = await fetch(`${this.apiBaseUrl}/api/status`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
+                    
+                    this.connectionStatus = response.ok;
+                    this.retryCount = 0;
+                    this.updateConnectionStatus(true);
+                } catch (error) {
+                    this.connectionStatus = false;
+                    this.updateConnectionStatus(false, error.message);
+                }
+            }
+
+            updateConnectionStatus(connected, errorMessage = '') {
+                const statusElement = document.getElementById('connection-status');
+                const statusDot = statusElement.querySelector('.status-dot');
+                const statusText = statusElement.querySelector('span');
+                
+                if (connected) {
+                    statusElement.className = 'connection-status connected';
+                    statusDot.className = 'status-dot connected';
+                    statusText.textContent = 'Connected to Samudra-I API';
+                } else {
+                    statusElement.className = 'connection-status disconnected';
+                    statusDot.className = 'status-dot disconnected';
+                    statusText.textContent = `API Connection Failed${errorMessage ? ': ' + errorMessage : ''}`;
+                }
+                
+                // Auto-hide after 5 seconds if connected
+                if (connected) {
+                    setTimeout(() => {
+                        statusElement.style.opacity = '0';
+                        setTimeout(() => {
+                            if (this.connectionStatus) {
+                                statusElement.style.display = 'none';
+                            }
+                        }, 300);
+                    }, 5000);
+                } else {
+                    statusElement.style.display = 'flex';
+                    statusElement.style.opacity = '1';
+                }
+            }
+
+            setupEventListeners() {
+                const chatInput = document.getElementById('chat-input');
+                const sendButton = document.getElementById('send-message');
+                const newChatButton = document.getElementById('new-chat');
+                const logoutButton = document.getElementById('logout-btn');
+
+                // Auto-resize textarea
+                chatInput.addEventListener('input', () => {
+                    chatInput.style.height = 'auto';
+                    chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
+                    
+                    sendButton.disabled = !chatInput.value.trim();
+                });
+
+                // Send message
+                sendButton.addEventListener('click', () => {
+                    this.sendMessage();
+                });
+
+                chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+
+                // New chat
+                newChatButton.addEventListener('click', () => {
+                    this.startNewChat();
+                });
+
+                // Logout
+                logoutButton.addEventListener('click', () => {
+                    this.logout();
+                });
+
+                // Quick suggestions
+                document.querySelectorAll('.quick-suggest, .input-suggest').forEach(button => {
+                    button.addEventListener('click', () => {
+                        chatInput.value = button.textContent.trim();
+                        chatInput.style.height = 'auto';
+                        chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
+                        sendButton.disabled = false;
+                        chatInput.focus();
+                    });
+                });
+
+                // Quick actions
+                document.querySelectorAll('.quick-action').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const actionText = button.querySelector('.font-medium').textContent;
+                        this.handleQuickAction(actionText);
+                    });
+                });
+            }
+
+            sendMessage() {
+                const chatInput = document.getElementById('chat-input');
+                const message = chatInput.value.trim();
+                
+                if (!message || this.isTyping) return;
+
+                // Add user message
+                this.addMessage(message, 'user');
+                
+                // Clear input
+                chatInput.value = '';
+                chatInput.style.height = 'auto';
+                document.getElementById('send-message').disabled = true;
+
+                // Show typing indicator and generate response
+                this.showTypingIndicator();
+                this.generateResponse(message);
+            }
+
+            addMessage(content, sender, type = 'text') {
+                const chatMessages = document.getElementById('chat-messages');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message-bubble';
+                
+                const isUser = sender === 'user';
+                
+                messageDiv.innerHTML = `
+                    <div class="flex items-start space-x-4 ${isUser ? 'flex-row-reverse' : ''}">
+                        <div class="w-10 h-10 ${isUser ? 'user-avatar' : 'ai-avatar'} rounded-full flex items-center justify-center flex-shrink-0">
+                            <span class="text-white font-bold text-sm">${isUser ? this.getInitials() : 'S'}</span>
+                        </div>
+                        <div class="flex-1 ${isUser ? 'text-right' : ''}">
+                            ${this.renderMessageContent(content, type, isUser)}
+                        </div>
+                    </div>
+                `;
+                
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // Store message
+                this.messages.push({
+                    content,
+                    sender,
+                    type,
+                    timestamp: new Date().toISOString()
+                });
+            }
+
+            renderMessageContent(content, type, isUser) {
+                if (type === 'text') {
+                    let processedContent = content;
+                    if (typeof content === 'string') {
+                        processedContent = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                        processedContent = processedContent.replace(/\n/g, '<br>');
+                    }
+                    
+                    return `
+                        <div class="${isUser ? 'bg-copper-orange text-white' : 'bg-soft-cream'} rounded-2xl p-4 inline-block max-w-2xl text-left">
+                            <p class="text-sm leading-relaxed">${processedContent}</p>
+                        </div>
+                    `;
+                } else if (type === 'sources') {
+                    return `
+                        <div class="bg-blue-50 border-l-4 border-blue-400 rounded-r-2xl p-4 max-w-2xl">
+                            <p class="text-sm text-blue-800">${content}</p>
+                        </div>
+                    `;
+                } else if (type === 'visualization') {
+                    return `
+                        <div class="bg-soft-cream rounded-2xl p-4 max-w-2xl">
+                            <div class="mb-3">
+                                <p class="text-sm text-warm-stone mb-3">${content.description}</p>
+                                ${content.chart_url ? `
+                                    <div class="chart-container rounded-lg p-2 mb-3 bg-white">
+                                        <img src="${content.chart_url}" alt="Generated Chart" class="w-full h-auto rounded" style="max-height: 300px; object-fit: contain;">
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="chart-expand px-3 py-1 bg-copper-orange text-white rounded text-xs hover:bg-copper-orange/90 transition-colors" 
+                                        onclick="window.open('${content.chart_url}', '_blank')">
+                                    View Full Size
+                                </button>
+                                <button class="px-3 py-1 border border-copper-orange text-copper-orange rounded text-xs hover:bg-copper-orange hover:text-white transition-colors"
+                                        onclick="chatApp.downloadChart('${content.chart_url}')">
+                                    Download Chart
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                } else if (type === 'error') {
+                    return `
+                        <div class="bg-soft-cream rounded-2xl p-4 max-w-2xl">
+                            <div class="error-message">
+                                <p class="text-sm">${content}</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            showTypingIndicator() {
+                this.isTyping = true;
+                const chatMessages = document.getElementById('chat-messages');
+                const typingDiv = document.createElement('div');
+                typingDiv.id = 'typing-indicator';
+                typingDiv.className = 'message-bubble';
+                
+                typingDiv.innerHTML = `
+                    <div class="flex items-start space-x-4">
+                        <div class="w-10 h-10 ai-avatar rounded-full flex items-center justify-center flex-shrink-0">
+                            <span class="text-white font-bold text-sm">S</span>
+                        </div>
+                        <div class="bg-soft-cream rounded-2xl p-4">
+                            <div class="flex space-x-1">
+                                <div class="loading-dots w-2 h-2 bg-warm-stone rounded-full"></div>
+                                <div class="loading-dots w-2 h-2 bg-warm-stone rounded-full"></div>
+                                <div class="loading-dots w-2 h-2 bg-warm-stone rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                chatMessages.appendChild(typingDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            hideTypingIndicator() {
+                this.isTyping = false;
+                const typingIndicator = document.getElementById('typing-indicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
+
+            async generateResponse(userMessage) {
+                try {
+                    // Prepare chat history for the API
+                    const history = this.messages
+                        .filter(msg => msg.type === 'text')
+                        .map(msg => ({
+                            role: msg.sender === 'user' ? 'user' : 'assistant',
+                            content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
+                        }));
+
+                    // Call FastAPI backend with retry logic
+                    const response = await this.makeAPICall(`${this.apiBaseUrl}/chat`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            message: userMessage,
+                            history: history,
+                            use_knowledge: true
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    
+                    this.hideTypingIndicator();
+                    
+                    // Add the AI response
+                    this.addMessage(data.response, 'ai', 'text');
+                    
+                    // Handle visualizations if present
+                    if (data.has_visualizations && data.visualizations && data.visualizations.length > 0) {
+                        this.displayVisualizations(data.visualizations);
+                    }
+                    
+                    // Display sources if available
+                    if (data.sources && data.sources.length > 0) {
+                        this.displaySources(data.sources);
+                    }
+                    
+                    this.saveToRecentQueries(userMessage);
+                    
+                } catch (error) {
+                    console.error('Error calling FastAPI backend:', error);
+                    this.hideTypingIndicator();
+                    
+                    let errorMessage = "I apologize, but I'm having trouble connecting to the backend service. ";
+                    
+                    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                        errorMessage += "Please ensure the FastAPI server is running on http://localhost:7777 and that your network connection is stable.";
+                    } else if (error.message.includes('500')) {
+                        errorMessage += "The server encountered an internal error. Please try again in a moment.";
+                    } else if (error.message.includes('404')) {
+                        errorMessage += "The chat service endpoint was not found. Please check the API configuration.";
+                    } else {
+                        errorMessage += `Technical details: ${error.message}`;
+                    }
+                    
+                    this.addMessage(errorMessage, 'ai', 'error');
+                    
+                    // Fallback response if enabled
+                    if (CONFIG.ENABLE_FALLBACK) {
+                        setTimeout(() => {
+                            const fallbackResponse = this.getFallbackResponse(userMessage);
+                            this.addMessage("📝 Showing demonstration response while the backend is unavailable:", 'ai', 'text');
+                            this.addMessage(fallbackResponse, 'ai', 'text');
+                        }, 1500);
+                    }
+                    
+                    this.saveToRecentQueries(userMessage);
+                }
+            }
+
+            async makeAPICall(url, options, retryCount = 0) {
+                try {
+                    const response = await fetch(url, options);
+                    return response;
+                } catch (error) {
+                    if (retryCount < CONFIG.MAX_RETRIES) {
+                        console.log(`API call failed, retrying (${retryCount + 1}/${CONFIG.MAX_RETRIES})...`);
+                        await new Promise(resolve => setTimeout(resolve, CONFIG.RETRY_DELAY));
+                        return this.makeAPICall(url, options, retryCount + 1);
+                    }
+                    throw error;
+                }
+            }
+
+            getFallbackResponse(message) {
+                const lowerMessage = message.toLowerCase();
+                
+                if (lowerMessage.includes('temperature') || lowerMessage.includes('temp')) {
+                    return "Based on oceanographic data patterns, ocean temperatures show significant regional variations. The global ocean has been experiencing warming trends, with surface temperatures increasing at an average rate of about 0.6°C per century in recent decades. ARGO floats provide crucial data for monitoring these temperature changes across different depths and regions.";
+                } else if (lowerMessage.includes('salinity')) {
+                    return "Ocean salinity varies significantly across different regions and depths. Typical surface salinity ranges from about 32-37 PSU (Practical Salinity Units), with the North Atlantic showing higher salinity due to evaporation, while polar regions often have lower salinity due to ice melt and freshwater input.";
+                } else if (lowerMessage.includes('current')) {
+                    return "Ocean currents play a crucial role in global climate and heat distribution. Major currents like the Gulf Stream, Kuroshio, and Antarctic Circumpolar Current transport heat and nutrients across ocean basins. Current velocities can range from a few centimeters per second to over 2 meters per second in strong boundary currents.";
+                } else if (lowerMessage.includes('argo')) {
+                    return "The ARGO program maintains a global array of approximately 4,000 autonomous profiling floats that measure temperature and salinity from the surface to 2000m depth every 10 days. This network provides unprecedented coverage of the global ocean and is essential for understanding ocean circulation and climate variability.";
+                } else {
+                    return "I'm here to help you explore oceanographic data and marine science topics. I can provide information about ocean temperatures, salinity patterns, current systems, ARGO float data, and climate-related changes in our oceans. Feel free to ask about specific regions, time periods, or phenomena you're interested in learning about.";
+                }
+            }
+
+            displayVisualizations(visualizations) {
+                for (const viz of visualizations) {
+                    if (viz.type === 'imagen_generated' && viz.images && viz.images.length > 0) {
+                        // Handle Google Imagen generated visualizations
+                        const vizContainer = document.createElement('div');
+                        vizContainer.className = 'visualization-container mb-3 p-3 border rounded';
+                        vizContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+                        
+                        // Add header with analysis info
+                        const header = document.createElement('div');
+                        header.className = 'visualization-header mb-2';
+                        header.innerHTML = `
+                            <h6 class="mb-1 text-primary">🎨 Generated Visualization</h6>
+                            <small class="text-muted">
+                                Type: ${viz.analysis?.visualization_type || 'Data Analysis'} | 
+                                Sources: ${viz.rag_sources?.length || 0} datasets | 
+                                Images: ${viz.images.length}
+                            </small>
+                        `;
+                        vizContainer.appendChild(header);
+                        
+                        // Add generated images
+                        viz.images.forEach((image, index) => {
+                            const imageDiv = document.createElement('div');
+                            imageDiv.className = 'generated-image mb-2';
+                            imageDiv.innerHTML = `
+                                <img src="${image.url}" 
+                                     alt="Generated visualization ${index + 1}" 
+                                     class="img-fluid rounded shadow-sm"
+                                     style="max-width: 100%; height: auto; cursor: pointer;"
+                                     onclick="this.requestFullscreen()">
+                                <div class="image-info mt-1">
+                                    <small class="text-muted">
+                                        ${image.filename} (${image.size[0]}x${image.size[1]}) - 
+                                        Generated: ${new Date(image.created_at).toLocaleString()}
+                                    </small>
+                                </div>
+                            `;
+                            vizContainer.appendChild(imageDiv);
+                        });
+                        
+                        // Add prompt used for generation (expandable)
+                        if (viz.prompt) {
+                            const promptDiv = document.createElement('div');
+                            promptDiv.className = 'prompt-info mt-2';
+                            promptDiv.innerHTML = `
+                                <button class="btn btn-sm btn-outline-secondary" type="button" 
+                                        data-bs-toggle="collapse" data-bs-target="#prompt-${Date.now()}" 
+                                        aria-expanded="false">
+                                    Show Generation Prompt
+                                </button>
+                                <div class="collapse mt-2" id="prompt-${Date.now()}">
+                                    <div class="card card-body small">
+                                        <strong>Prompt:</strong> ${viz.prompt}
+                                    </div>
+                                </div>
+                            `;
+                            vizContainer.appendChild(promptDiv);
+                        }
+                        
+                        this.chatContainer.appendChild(vizContainer);
+                    } else {
+                        // Handle legacy visualization format
+                        const vizMessage = {
+                            description: viz.description || "Data visualization generated from your query",
+                            chart_url: viz.chart_url || viz.url,
+                            chart_type: viz.chart_type || "chart"
+                        };
+                        this.addMessage(vizMessage, 'ai', 'visualization');
+                    }
+                }
+                
+                // Scroll to bottom after adding visualizations
+                this.chatContainer.scrollTop = this.chatContainer.scrollHeight;
+            }
+
+            displaySources(sources) {
+                if (sources.length > 0) {
+                    const sourcesText = `📚 **Sources:** ${sources.join(', ')}`;
+                    this.addMessage(sourcesText, 'ai', 'sources');
+                }
+            }
+
+            getInitials() {
+                if (this.user && this.user.name) {
+                    return this.user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                }
+                return 'U';
+            }
+
+            handleQuickAction(action) {
+                const chatInput = document.getElementById('chat-input');
+                let query = '';
+                
+                switch(action) {
+                    case 'Temperature Analysis':
+                        query = 'Analyze global ocean temperature trends over the past year';
+                        break;
+                    case 'Salinity Patterns':
+                        query = 'Compare salinity patterns between different ocean basins';
+                        break;
+                    case 'Current Analysis':
+                        query = 'Generate current velocity analysis for major ocean currents';
+                        break;
+                }
+                
+                chatInput.value = query;
+                chatInput.style.height = 'auto';
+                chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
+                document.getElementById('send-message').disabled = false;
+                chatInput.focus();
+            }
+
+            saveToRecentQueries(query) {
+                let recentQueries = JSON.parse(localStorage.getItem('samudra_recent_queries') || '[]');
+                recentQueries.unshift({
+                    query: query,
+                    timestamp: new Date().toISOString()
+                });
+                
+                // Keep only last 10 queries
+                recentQueries = recentQueries.slice(0, 10);
+                localStorage.setItem('samudra_recent_queries', JSON.stringify(recentQueries));
+                
+                this.loadRecentQueries();
+            }
+
+            loadRecentQueries() {
+                const recentQueries = JSON.parse(localStorage.getItem('samudra_recent_queries') || '[]');
+                const container = document.getElementById('recent-queries');
+                
+                if (recentQueries.length === 0) {
+                    container.innerHTML = '<p class="text-sm text-warm-stone italic">No recent queries yet</p>';
+                    return;
+                }
+                
+                container.innerHTML = recentQueries.map(query => `
+                    <button class="w-full text-left p-2 rounded-lg hover:bg-soft-cream transition-colors text-sm group">
+                        <div class="font-medium text-deep-charcoal truncate">${query.query}</div>
+                        <div class="text-xs text-warm-stone">${this.formatTimestamp(query.timestamp)}</div>
+                    </button>
+                `).join('');
+                
+                // Add click handlers
+                container.querySelectorAll('button').forEach((button, index) => {
+                    button.addEventListener('click', () => {
+                        const chatInput = document.getElementById('chat-input');
+                        chatInput.value = recentQueries[index].query;
+                        chatInput.style.height = 'auto';
+                        chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
+                        document.getElementById('send-message').disabled = false;
+                        chatInput.focus();
+                    });
+                });
+            }
+
+            formatTimestamp(timestamp) {
+                const date = new Date(timestamp);
+                const now = new Date();
+                const diffMs = now - date;
+                const diffMins = Math.floor(diffMs / 60000);
+                const diffHours = Math.floor(diffMins / 60);
+                const diffDays = Math.floor(diffHours / 24);
+                
+                if (diffMins < 1) return 'Just now';
+                if (diffMins < 60) return `${diffMins}m ago`;
+                if (diffHours < 24) return `${diffHours}h ago`;
+                return `${diffDays}d ago`;
+            }
+
+            startNewChat() {
+                const chatMessages = document.getElementById('chat-messages');
+                chatMessages.innerHTML = '';
+                this.messages = [];
+                
+                // Show welcome message again
+                setTimeout(() => {
+                    this.addMessage("Welcome back! I'm ready to help you with your oceanographic research. What would you like to explore today?", 'ai');
+                }, 300);
+            }
+
+            logout() {
+                localStorage.removeItem('samudra_user');
+                localStorage.removeItem('samudra_recent_queries');
+                // Since there's no auth.html, just reload the page
+                window.location.reload();
+            }
+
+            downloadChart(chartUrl) {
+                if (chartUrl) {
+                    const link = document.createElement('a');
+                    link.href = chartUrl;
+                    link.download = `samudra-chart-${Date.now()}.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+            }
+
+            animateEntrance() {
+                // Animate sidebar
+                anime({
+                    targets: '.sidebar',
+                    translateX: [-300, 0],
+                    opacity: [0, 1],
+                    duration: 600,
+                    easing: 'easeOutCubic'
+                });
+
+                // Animate chat area
+                anime({
+                    targets: '.chat-area',
+                    translateX: [300, 0],
+                    opacity: [0, 1],
+                    duration: 600,
+                    delay: 200,
+                    easing: 'easeOutCubic'
+                });
+            }
+        }
+
+        // Initialize chat app
+        let chatApp;
+        document.addEventListener('DOMContentLoaded', () => {
+            chatApp = new ChatApp();
+        });
+
+        // Export chat functionality
+        document.getElementById('export-chat')?.addEventListener('click', () => {
+            if (chatApp && chatApp.messages.length > 0) {
+                const chatData = {
+                    user: chatApp.user,
+                    messages: chatApp.messages,
+                    timestamp: new Date().toISOString()
+                };
+                
+                const blob = new Blob([JSON.stringify(chatData, null, 2)], {
+                    type: 'application/json'
+                });
+                
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `samudra-chat-${new Date().toISOString().slice(0, 10)}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+        });
+
+        // Fullscreen functionality
+        document.getElementById('fullscreen')?.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        });
+
+        // Chart modal functionality
+        const chartModal = document.getElementById('chart-modal');
+        const closeChart = document.getElementById('close-chart');
+        
+        closeChart?.addEventListener('click', () => {
+            chartModal.classList.add('hidden');
+        });
+        
+        chartModal?.addEventListener('click', (e) => {
+            if (e.target === chartModal) {
+                chartModal.classList.add('hidden');
+            }
+        });
+
+        // Handle service worker for offline functionality (optional)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(err => {
+                console.log('Service worker registration failed:', err);
+            });
+        }
+    </script>
+</body>
+</html>

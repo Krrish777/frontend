@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Samudra-I API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .loading { background-color: #fff3cd; border-color: #ffeaa7; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        textarea { width: 100%; height: 100px; margin: 10px 0; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Samudra-I FastAPI Integration Test</h1>
+    
+    <div class="test-section">
+        <h2>1. Backend Connection Test</h2>
+        <button onclick="testConnection()">Test Connection</button>
+        <div id="connection-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Chat API Test</h2>
+        <textarea id="test-message" placeholder="Enter your test message here...">Show me temperature data analysis</textarea>
+        <br>
+        <button onclick="testChatAPI()">Send Test Message</button>
+        <div id="chat-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Integration Status</h2>
+        <div id="integration-status">
+            <p>✅ Frontend: Ready</p>
+            <p id="backend-status">🔄 Backend: Checking...</p>
+            <p id="chat-status">⏳ Chat Integration: Pending test</p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:7777';
+
+        async function testConnection() {
+            const resultDiv = document.getElementById('connection-result');
+            resultDiv.innerHTML = '<p class="loading">Testing connection...</p>';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/status`);
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h4>✅ Connection Successful!</h4>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                    document.getElementById('backend-status').innerHTML = '✅ Backend: Connected';
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Connection Failed</h4>
+                        <p>Error: ${error.message}</p>
+                        <p>Make sure the FastAPI server is running on http://localhost:7777</p>
+                    </div>
+                `;
+                document.getElementById('backend-status').innerHTML = '❌ Backend: Disconnected';
+            }
+        }
+
+        async function testChatAPI() {
+            const message = document.getElementById('test-message').value;
+            const resultDiv = document.getElementById('chat-result');
+            
+            if (!message.trim()) {
+                alert('Please enter a test message');
+                return;
+            }
+
+            resultDiv.innerHTML = '<p class="loading">Sending message to AI agent...</p>';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        history: [],
+                        use_knowledge: true
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h4>✅ Chat API Test Successful!</h4>
+                            <h5>Response:</h5>
+                            <p><strong>${data.response}</strong></p>
+                            
+                            ${data.sources && data.sources.length > 0 ? `
+                                <h5>Sources:</h5>
+                                <ul>${data.sources.map(source => `<li>${source}</li>`).join('')}</ul>
+                            ` : ''}
+                            
+                            ${data.has_visualizations ? `
+                                <h5>Visualizations:</h5>
+                                <p>✅ ${data.visualizations.length} visualization(s) generated</p>
+                                ${data.visualizations.map(viz => `
+                                    <div style="margin: 10px 0;">
+                                        <p><strong>Description:</strong> ${viz.description || 'N/A'}</p>
+                                        ${viz.chart_url ? `<img src="${viz.chart_url}" style="max-width: 300px; max-height: 200px;">` : ''}
+                                    </div>
+                                `).join('')}
+                            ` : '<p>No visualizations generated</p>'}
+                            
+                            <h5>Full Response:</h5>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                    document.getElementById('chat-status').innerHTML = '✅ Chat Integration: Working';
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Chat API Test Failed</h4>
+                        <p>Error: ${error.message}</p>
+                        <p>Check the browser console for more details</p>
+                    </div>
+                `;
+                document.getElementById('chat-status').innerHTML = '❌ Chat Integration: Failed';
+                console.error('Chat API Error:', error);
+            }
+        }
+
+        // Auto-test connection on page load
+        window.addEventListener('load', () => {
+            setTimeout(testConnection, 500);
+        });
+    </script>
+</body>
+</html>

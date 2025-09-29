@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication | Samudra-I</title>
+    <meta name="description" content="Sign in to Samudra-I to access AI-powered oceanographic research tools and data analysis capabilities.">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'deep-charcoal': '#2A2A2A',
+                        'warm-stone': '#8B7D6B',
+                        'copper-orange': '#B87333',
+                        'soft-cream': '#F8F6F3'
+                    },
+                    fontFamily: {
+                        'display': ['Inter', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #F8F6F3 0%, #F5F3F0 100%);
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .auth-card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(139, 125, 107, 0.2);
+        }
+        
+        .form-input {
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(184, 115, 51, 0.15);
+        }
+        
+        .auth-toggle {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .auth-toggle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50%;
+            height: 100%;
+            background: #B87333;
+            transition: transform 0.3s ease;
+            z-index: 1;
+        }
+        
+        .auth-toggle.signup::before {
+            transform: translateX(100%);
+        }
+        
+        .auth-toggle button {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .floating-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .shape {
+            position: absolute;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        .error-message {
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body class="text-deep-charcoal min-h-screen flex items-center justify-center p-6">
+    <!-- Floating Background Shapes -->
+    <div class="floating-shapes">
+        <div class="shape w-20 h-20 bg-copper-orange rounded-full top-10 left-10" style="animation-delay: 0s;"></div>
+        <div class="shape w-16 h-16 bg-warm-stone rounded-lg top-32 right-20" style="animation-delay: 2s;"></div>
+        <div class="shape w-12 h-12 bg-copper-orange rounded-full bottom-20 left-32" style="animation-delay: 4s;"></div>
+        <div class="shape w-24 h-24 bg-warm-stone rounded-xl bottom-32 right-10" style="animation-delay: 1s;"></div>
+    </div>
+
+    <div class="w-full max-w-md z-10">
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <div class="flex items-center justify-center space-x-3 mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-copper-orange to-warm-stone rounded-xl flex items-center justify-center">
+                    <span class="text-white font-bold text-xl">S</span>
+                </div>
+                <span class="font-display font-bold text-3xl">Samudra-I</span>
+            </div>
+            <p class="text-warm-stone text-lg">AI-Powered Oceanographic Research</p>
+        </div>
+
+        <!-- Auth Card -->
+        <div class="auth-card rounded-2xl p-8 shadow-2xl">
+            <!-- Toggle Buttons -->
+            <div class="auth-toggle relative bg-soft-cream rounded-lg p-1 mb-8">
+                <div class="flex">
+                    <button id="login-toggle" class="flex-1 py-3 text-sm font-medium rounded-md transition-colors text-white">
+                        Sign In
+                    </button>
+                    <button id="signup-toggle" class="flex-1 py-3 text-sm font-medium rounded-md transition-colors text-warm-stone">
+                        Sign Up
+                    </button>
+                </div>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium mb-2" for="login-email">Email Address</label>
+                    <input 
+                        type="email" 
+                        id="login-email" 
+                        class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-orange/50 focus:border-copper-orange"
+                        placeholder="researcher@institution.edu"
+                        required
+                    >
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2" for="login-password">Password</label>
+                    <input 
+                        type="password" 
+                        id="login-password" 
+                        class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-orange/50 focus:border-copper-orange"
+                        placeholder="Enter your password"
+                        required
+                    >
+                </div>
+                
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center">
+                        <input type="checkbox" class="rounded border-gray-300 text-copper-orange focus:ring-copper-orange">
+                        <span class="ml-2 text-sm text-warm-stone">Remember me</span>
+                    </label>
+                    <a href="#" class="text-sm text-copper-orange hover:text-copper-orange/80">Forgot password?</a>
+                </div>
+                
+                <button 
+                    type="submit" 
+                    class="w-full bg-copper-orange text-white py-3 rounded-lg font-medium hover:bg-copper-orange/90 transition-colors focus:outline-none focus:ring-2 focus:ring-copper-orange/50"
+                >
+                    Sign In to Samudra-I
+                </button>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="signup-form" class="space-y-6 hidden">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2" for="signup-firstname">First Name</label>
+                        <input 
+                            type="text" 
+                            id="signup-firstname" 
+                            class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-orange/50 focus:border-copper-orange"
+                            placeholder="John"
+                            required
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2" for="signup-lastname">Last Name</label>
+                        <input 
+                            type="text" 
+                            id="signup-lastname" 
+                            class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-orange/50 focus:border-copper-orange"
+                            placeholder="Doe"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-2" for="signup-institution">Institution/Organization</label>
+                    <input 
+                        type="text" 
+                        id="signup-institution" 
+                        class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-orange/50 focus:border-copper-orange"
+                        placeholder="Oceanographic Institute"
+                        required
+                    >
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2" for="signup-email">Email Address</label>
+                    <input 
+                        type="email" 
+                        id="signup-email" 
+                        class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-orange/50 focus:border-copper-orange"
+                        placeholder="researcher@institution.edu"
+                        required
+                    >
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2" for="signup-password">Password</label>
+                    <input 
+                        type="password" 
+                        id="signup-password" 
+                        class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-orange/50 focus:border-copper-orange"
+                        placeholder="Create a strong password"
+                        required
+                    >
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2" for="signup-confirm">Confirm Password</label>
+                    <input 
+                        type="password" 
+                        id="signup-confirm" 
+                        class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-orange/50 focus:border-copper-orange"
+                        placeholder="Confirm your password"
+                        required
+                    >
+                </div>
+                
+                <div class="flex items-start">
+                    <input type="checkbox" class="mt-1 rounded border-gray-300 text-copper-orange focus:ring-copper-orange" required>
+                    <span class="ml-2 text-sm text-warm-stone">
+                        I agree to the <a href="#" class="text-copper-orange hover:text-copper-orange/80">Terms of Service</a> and <a href="#" class="text-copper-orange hover:text-copper-orange/80">Privacy Policy</a>
+                    </span>
+                </div>
+                
+                <button 
+                    type="submit" 
+                    class="w-full bg-copper-orange text-white py-3 rounded-lg font-medium hover:bg-copper-orange/90 transition-colors focus:outline-none focus:ring-2 focus:ring-copper-orange/50"
+                >
+                    Create Account
+                </button>
+            </form>
+
+            <!-- Demo Access -->
+            <div class="mt-8 pt-8 border-t border-gray-200">
+                <p class="text-center text-sm text-warm-stone mb-4">Or try Samudra-I without an account</p>
+                <button 
+                    id="demo-access" 
+                    class="w-full border-2 border-copper-orange text-copper-orange py-3 rounded-lg font-medium hover:bg-copper-orange hover:text-white transition-colors"
+                >
+                    Continue as Guest
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-8">
+            <p class="text-sm text-warm-stone">
+                By accessing Samudra-I, you agree to our research collaboration terms
+            </p>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div id="error-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl p-8 max-w-md mx-4 text-center">
+            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <h3 class="text-xl font-display font-semibold mb-2">Authentication Error</h3>
+            <p id="error-message" class="text-warm-stone mb-6">Something went wrong. Please try again.</p>
+            <button id="close-error" class="bg-copper-orange text-white px-6 py-2 rounded-lg font-medium hover:bg-copper-orange/90 transition-colors">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <script>
+        class AuthApp {
+            constructor() {
+                this.isLoginMode = true;
+                this.init();
+            }
+
+            init() {
+                this.setupToggle();
+                this.setupForms();
+                this.setupDemoAccess();
+                this.setupErrorModal();
+                this.animateEntrance();
+            }
+
+            setupToggle() {
+                const loginToggle = document.getElementById('login-toggle');
+                const signupToggle = document.getElementById('signup-toggle');
+                const loginForm = document.getElementById('login-form');
+                const signupForm = document.getElementById('signup-form');
+                const authToggle = document.querySelector('.auth-toggle');
+
+                loginToggle.addEventListener('click', () => {
+                    this.isLoginMode = true;
+                    loginForm.classList.remove('hidden');
+                    signupForm.classList.add('hidden');
+                    loginToggle.classList.add('text-white');
+                    loginToggle.classList.remove('text-warm-stone');
+                    signupToggle.classList.add('text-warm-stone');
+                    signupToggle.classList.remove('text-white');
+                    authToggle.classList.remove('signup');
+                });
+
+                signupToggle.addEventListener('click', () => {
+                    this.isLoginMode = false;
+                    signupForm.classList.remove('hidden');
+                    loginForm.classList.add('hidden');
+                    signupToggle.classList.add('text-white');
+                    signupToggle.classList.remove('text-warm-stone');
+                    loginToggle.classList.add('text-warm-stone');
+                    loginToggle.classList.remove('text-white');
+                    authToggle.classList.add('signup');
+                });
+            }
+
+            setupForms() {
+                const loginForm = document.getElementById('login-form');
+                const signupForm = document.getElementById('signup-form');
+
+                loginForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleLogin();
+                });
+
+                signupForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleSignup();
+                });
+            }
+
+            handleLogin() {
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+
+                // Simulate authentication
+                this.showLoadingState();
+                
+                setTimeout(() => {
+                    // Mock authentication - in real app, this would call an API
+                    if (email && password) {
+                        // Store user session
+                        localStorage.setItem('samudra_user', JSON.stringify({
+                            email: email,
+                            name: email.split('@')[0],
+                            institution: 'Research Institution',
+                            loginTime: new Date().toISOString()
+                        }));
+                        
+                        // Redirect to chat interface
+                        window.location.href = 'chat.html';
+                    } else {
+                        this.showError('Please enter both email and password');
+                    }
+                }, 1500);
+            }
+
+            handleSignup() {
+                const firstName = document.getElementById('signup-firstname').value;
+                const lastName = document.getElementById('signup-lastname').value;
+                const institution = document.getElementById('signup-institution').value;
+                const email = document.getElementById('signup-email').value;
+                const password = document.getElementById('signup-password').value;
+                const confirmPassword = document.getElementById('signup-confirm').value;
+
+                // Validate form
+                if (!firstName || !lastName || !institution || !email || !password) {
+                    this.showError('Please fill in all required fields');
+                    return;
+                }
+
+                if (password !== confirmPassword) {
+                    this.showError('Passwords do not match');
+                    return;
+                }
+
+                if (password.length < 8) {
+                    this.showError('Password must be at least 8 characters long');
+                    return;
+                }
+
+                // Simulate registration
+                this.showLoadingState();
+                
+                setTimeout(() => {
+                    // Store user session
+                    localStorage.setItem('samudra_user', JSON.stringify({
+                        email: email,
+                        name: `${firstName} ${lastName}`,
+                        institution: institution,
+                        loginTime: new Date().toISOString()
+                    }));
+                    
+                    // Redirect to chat interface
+                    window.location.href = 'chat.html';
+                }, 1500);
+            }
+
+            setupDemoAccess() {
+                const demoButton = document.getElementById('demo-access');
+                
+                demoButton.addEventListener('click', () => {
+                    // Create guest session
+                    localStorage.setItem('samudra_user', JSON.stringify({
+                        email: 'guest@demo.com',
+                        name: 'Guest Researcher',
+                        institution: 'Demo Institution',
+                        loginTime: new Date().toISOString(),
+                        isGuest: true
+                    }));
+                    
+                    // Redirect to chat interface
+                    window.location.href = 'chat.html';
+                });
+            }
+
+            setupErrorModal() {
+                const errorModal = document.getElementById('error-modal');
+                const closeButton = document.getElementById('close-error');
+                
+                closeButton.addEventListener('click', () => {
+                    errorModal.classList.add('hidden');
+                });
+                
+                errorModal.addEventListener('click', (e) => {
+                    if (e.target === errorModal) {
+                        errorModal.classList.add('hidden');
+                    }
+                });
+            }
+
+            showLoadingState() {
+                // Disable form buttons and show loading
+                const buttons = document.querySelectorAll('button[type="submit"]');
+                buttons.forEach(button => {
+                    button.disabled = true;
+                    button.innerHTML = '<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>Processing...</div>';
+                });
+            }
+
+            showError(message) {
+                const errorModal = document.getElementById('error-modal');
+                const errorMessage = document.getElementById('error-message');
+                
+                errorMessage.textContent = message;
+                errorModal.classList.remove('hidden');
+                
+                // Reset form buttons
+                const buttons = document.querySelectorAll('button[type="submit"]');
+                buttons.forEach(button => {
+                    button.disabled = false;
+                    button.textContent = this.isLoginMode ? 'Sign In to Samudra-I' : 'Create Account';
+                });
+            }
+
+            animateEntrance() {
+                // Animate the auth card entrance
+                anime({
+                    targets: '.auth-card',
+                    opacity: [0, 1],
+                    translateY: [50, 0],
+                    duration: 800,
+                    easing: 'easeOutCubic'
+                });
+
+                // Animate floating shapes
+                anime({
+                    targets: '.shape',
+                    opacity: [0, 0.1],
+                    scale: [0.5, 1],
+                    duration: 1000,
+                    delay: anime.stagger(200),
+                    easing: 'easeOutCubic'
+                });
+            }
+        }
+
+        // Initialize auth app
+        document.addEventListener('DOMContentLoaded', () => {
+            new AuthApp();
+        });
+    </script>
+</body>
+</html>
